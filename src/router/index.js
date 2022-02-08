@@ -64,11 +64,26 @@ const routes = [
     name: "admin-restaurants",
     component: () => import("../views/AdminRestaurants.vue"),
   },
-  // {
-  //   path: "/admin/restaurants/:id",
-  //   name: "admin-restaurant",
-  //   component: () => import("../views/AdminRestaurant.vue"),
-  // },
+  {
+    path: "/admin/restaurants/new",
+    name: "admin-restaurant-new",
+    component: () => import("../views/AdminRestaurantNew.vue"),
+  },
+  {
+    path: "/admin/restaurants/:id/edit",
+    name: "admin-restaurant-edit",
+    component: () => import("../views/AdminRestaurantEdit.vue"),
+  },
+  {
+    path: "/admin/restaurants/:id",
+    name: "admin-restaurant",
+    component: () => import("../views/AdminRestaurant.vue"),
+  },
+  {
+    path: "/admin/categories",
+    name: "admin-categories",
+    component: () => import("../views/AdminCategories.vue"),
+  },
   {
     path: '/admin',
     exact: true,  // 完全匹配 /admin 即進行轉址

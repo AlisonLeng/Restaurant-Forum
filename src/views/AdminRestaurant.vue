@@ -42,8 +42,10 @@
     >回上一頁</button>
   </div>
 </template>
+
 <script>
-import { emptyImageFilter } from './../utils/mixins'
+import {emptyImageFilter} from './../utils/mixins'
+
 const dummyData = {
   restaurant: {
     id: 2,
@@ -89,18 +91,16 @@ export default {
   methods: {
     fetchRestaurant (restaurantId) {
       const { restaurant } = dummyData
-      const { id, name, Category, image, opening_hours: openingHours, tel, address, description} = restaurant
-
       this.restaurant = {
         ...this.restaurant,
-        id,
-        name,
-        categoryName: Category ? Category.name : '未分類',
-        image,
-        openingHours,
-        tel,
-        address,
-        description
+        id: restaurant.id,
+        name: restaurant.name,
+        categoryName: restaurant.Category.name,
+        image: restaurant.image,
+        openingHours: restaurant.opening_hours,
+        tel: restaurant.tel,
+        address: restaurant.address,
+        description: restaurant.description
       }
     }
   }
