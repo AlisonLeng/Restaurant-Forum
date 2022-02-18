@@ -1,5 +1,5 @@
 <template>
-  <form @submit.stop.prevent="handleSubmit">
+  <form @submit.stop.prevent="handleSubmit" v-show="!isLoading">
     <div class="form-group">
       <label for="name">Name</label>
       <input
@@ -10,7 +10,7 @@
         name="name"
         placeholder="Enter name"
         required
-      >
+      />
     </div>
 
     <div class="form-group">
@@ -22,20 +22,14 @@
         name="categoryId"
         required
       >
+        <option value="" selected disabled>--請選擇--</option>
         <option
-          value=""
-          selected
-          disabled
+          v-for="category in categories"
+          :key="category.id"
+          :value="category.id"
         >
-          --請選擇--
+          {{ category.name }}
         </option>
-        <option 
-        v-for="category in categories" 
-        :key="category.id" 
-        :value="category.id">
-        {{category.name}}
-        </option>
-       
       </select>
     </div>
 
@@ -48,7 +42,7 @@
         class="form-control"
         name="tel"
         placeholder="Enter telephone number"
-      >
+      />
     </div>
 
     <div class="form-group">
@@ -60,7 +54,7 @@
         class="form-control"
         placeholder="Enter address"
         name="address"
-      >
+      />
     </div>
 
     <div class="form-group">
@@ -71,7 +65,7 @@
         type="time"
         class="form-control"
         name="opening_hours"
-      >
+      />
     </div>
 
     <div class="form-group">
@@ -88,11 +82,11 @@
     <div class="form-group">
       <label for="image">Image</label>
       <img
-      v-if="restaurant.image"
-      :src="restaurant.image"
-      class="d-block img-thumbnail mb-3"
-      width="200"
-      height="200"
+        v-if="restaurant.image"
+        :src="restaurant.image"
+        class="d-block img-thumbnail mb-3"
+        width="200"
+        height="200"
       />
       <input
         id="image"
@@ -101,98 +95,104 @@
         accept="image/*"
         class="form-control-file"
         @change="handleFileChange"
-      >
+      />
     </div>
 
-    <button
-      type="submit"
-      class="btn btn-primary"
-    >
-      送出
+    <button type="submit" class="btn btn-primary" :disable="isProcessing">
+      {{ isProcessing ? "處理中" : "送出" }}
     </button>
   </form>
 </template>
 
-
 <script>
-const dummyData = {
-  categories: [
-    {
-      id: 1,
-      name: '中式料理',
-      createdAt: '2019-06-22T09:00:43.000Z',
-      updatedAt: '2019-06-22T09:00:43.000Z'
-    },
-    {
-      id: 2,
-      name: '日本料理',
-      createdAt: '2019-06-22T09:00:43.000Z',
-      updatedAt: '2019-06-22T09:00:43.000Z'
-    },
-    {
-      id: 3,
-      name: '義大利料理',
-      createdAt: '2019-06-22T09:00:43.000Z',
-      updatedAt: '2019-06-22T09:00:43.000Z'
-    },
-    {
-      id: 4,
-      name: '墨西哥料理',
-      createdAt: '2019-06-22T09:00:43.000Z',
-      updatedAt: '2019-06-22T09:00:43.000Z'
-    }
-  ]
-}
+import adminAPI from "./../apis/admin";
+import { Toast } from "./../utils/helpers";
 
 export default {
-  name: 'AdminRestaurantForm',
+  name: "AdminRestaurantForm",
   props: {
     initialRestaurant: {
       type: Object,
       default: () => {
         return {
-          name: '',
-          tel: '',
-          address: '',
-          openingHours: '',
-          description: '',
-          image: '',
-          categoryId: '',
-        }
-      }
-    }
+          name: "",
+          tel: "",
+          address: "",
+          openingHours: "",
+          description: "",
+          image: "",
+          categoryId: "",
+        };
+      },
+    },
+    isProcessing: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
       categories: [],
       restaurant: {
-        ...this.initialRestaurant
-      }
-    }
+        ...this.initialRestaurant,
+      },
+      isLoading: true,
+    };
   },
   created() {
-    this.fetchCategories()
+    this.fetchCategories();
+  },
+  watch: {
+    initialRestaurant(newValue, oldValue) {
+      this.restaurant = {
+        ...this.restaurant,
+        ...newValue,
+      };
+    },
   },
   methods: {
-    fetchCategories() {
-      this.categories = dummyData.categories
-    },
-    handleFileChange(e) {
-      const { files } = e.target
-      if (files.length === 0) {
-        // 使用者沒有選擇上傳的檔案
-        this.restaurant.image = ''
-        return 
-      } else {
-      const imageURL = window.URL.createObjectURL(files[0])
-      this.restaurant.image = imageURL
+    async fetchCategories() {
+      try {
+        const { data } = await adminAPI.categories.get();
+        this.categories = data.categories;
+        this.isLoading = false;
+      } catch (error) {
+        this.isLoading = false;
+        Toast.fire({
+          icon: "error",
+          title: "無法取得餐廳類別，請稍後再試",
+        });
       }
     },
-    handleSubmit (e) {
-      const form = e.target
-      const formData = new FormData(form)
-      this.$emit('after-submit', formData)
-    }
-  }
-}
+    handleFileChange(e) {
+      const { files } = e.target;
+      if (files.length === 0) {
+        // 使用者沒有選擇上傳的檔案
+        this.restaurant.image = "";
+        return;
+      } else {
+        const imageURL = window.URL.createObjectURL(files[0]);
+        this.restaurant.image = imageURL;
+      }
+    },
+    handleSubmit(e) {
+      if (!this.restaurant.name) {
+        Toast.fire({
+          icon: "warning",
+          title: "請填寫餐廳名稱",
+        });
+        return;
+      } else if (!this.restaurant.categoryId) {
+        Toast.fire({
+          icon: "warning",
+          title: "請選擇餐廳類別",
+        });
+        return;
+      }
+      const form = e.target;
+      const formData = new FormData(form);
+      this.$emit("after-submit", formData);
+    },
+  },
+};
 </script>

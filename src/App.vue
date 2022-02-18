@@ -1,23 +1,20 @@
 <template>
   <div id="restaurant-forum">
-    <Navbar/>
+    <Navbar />
     <main class="mt-5 bg-white">
-      <router-view/>
+      <router-view />
     </main>
-    
   </div>
 </template>
 
 <script>
-import 'bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap'
-import Navbar from './components/Navbar'
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap";
+import Navbar from "./components/Navbar";
 
 export default {
   components: {
-    Navbar: Navbar
-  }
-}
+    Navbar: Navbar,
+  },
+};
 </script>
-
-

@@ -6,11 +6,12 @@ import Restaurants from '../views/Restaurants.vue'
 
 Vue.use(VueRouter)
 
+
 const routes = [
   {
     path: '/',
     name: 'root',
-    redirect: '/restaurants'
+    redirect: '/signin'
   },
   {
     path: '/signin',
